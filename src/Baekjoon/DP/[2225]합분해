@@ -1,0 +1,40 @@
+// https://www.acmicpc.net/problem/2225 합분해
+
+#include<stdio.h>
+
+int N, K;
+
+long long d[201][201] = { 0, };		// d[k][n] : k개의 숫자로 n을 만들 수 있는 갯수
+
+long long dp(int k, int n)
+{
+	long long ret = 0;
+
+	if (d[k][n] != 0)
+		return d[k][n];
+
+	if (k == 1 || n == 0)			// 1개의 숫자로 특정 숫자를 만드는 경우의 수 : 1 , 몇개의 숫자로든 0이라는 수를 만드는 경우의 수 : 1
+	{
+		return d[k][n] = 1;
+	}
+
+	for (int i = 0; i <= n; i++)
+	{
+		ret += dp(k - 1, n - i);
+		ret %= 1000000000;
+	}
+
+	d[k][n] = ret;
+
+	return d[k][n];
+}
+
+
+int main()
+{
+	scanf("%d %d", &N, &K);
+
+	printf("%lld", dp(K, N));
+	
+	return 0;
+}
