@@ -1,0 +1,51 @@
+// https://www.acmicpc.net/problem/11052 카드 구매하기
+
+#include<stdio.h>
+
+int arPay[10001] = { 0, };
+int d[1001][10001] = { 0, };		// d[n][cnt] : 0 ~ n 까지의 카드 구매수량으로, 총 cnt개를 살 수 있는 최대가격
+
+int dp(int index, int cnt)
+{
+	int max = 0, tmp = 0;
+	int index_cnt = cnt / index;
+
+	if (index < 1)
+		return 0;
+
+	if (d[index][cnt] != 0)
+		return d[index][cnt];
+
+    // 1개짜리 카드팩만 cnt 개를 구매하는 경우
+	if (index == 1)
+		return d[index][cnt] = arPay[index] * cnt;
+
+	for (int i = 0; i <= index_cnt; i++)
+	{
+		// index 번째의 카드팩을 0개,1개,2개, ... , 가능한 갯수까지 사는 경우에 대해 최대값을 저장
+		tmp = arPay[index] * i + dp(index-1, cnt - (index * i));
+
+		if (tmp > max)
+			max = tmp;
+	}
+
+	return d[index][cnt] = max;
+}
+
+int main()
+{
+	int N;
+
+	scanf("%d", &N);
+
+	for (int i = 1; i <= N; i++)
+	{
+		scanf("%d", &arPay[i]);
+	}
+
+	printf("%d", dp(N, N));
+
+	scanf("%d", &N);
+
+	return 0;
+}
