@@ -1,0 +1,67 @@
+// https://www.acmicpc.net/problem/1520 내리막길
+
+#include<stdio.h>
+
+int N, M;
+int arMap[501][501] = { 0, };
+int d[501][501] = { 0, };		// i, j 지점에서 N,M 까지 가는 경로의 수
+
+int di[4] = { -1,1,0,0 };
+int dj[4] = { 0,0,-1,1 };
+
+int dp(int i, int j)
+{
+	int cnt = 0;
+
+	// 길을 이미 거쳐본 경우, 저장 된 경우의 수 리턴
+	if (d[i][j] != -1)
+		return d[i][j];
+
+	// 하산 완료 시 길 1개 있음 반환
+	if (i == N - 1 && j == M - 1)
+		return d[i][j] = 1;
+	
+	d[i][j] = 0;
+
+	for (int k = 0; k < 4; k++)
+	{
+		int ret = 0;
+		int ni = i + di[k];
+		int nj = j + dj[k];
+
+		if (ni < 0 || nj < 0 || ni >= N || nj >= M)
+			continue;
+		
+		if (arMap[ni][nj] >= arMap[i][j])
+			continue;
+
+		ret = dp(ni, nj);
+
+		// 실제로 길이 있는 경우만 ret 만큼 cnt 더해줌 (-1 은 길이 없는것이기때문에 카운팅 X)
+		if (ret > 0)
+			cnt += ret;
+	}
+
+	if (cnt > 0)
+		d[i][j] += cnt;
+
+	return d[i][j];
+}
+
+int main()
+{
+	scanf("%d %d", &N, &M);
+
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < M; j++)
+		{
+			scanf("%d", &arMap[i][j]);
+			d[i][j] = -1;
+		}
+	}
+
+	printf("%d", dp(0, 0));
+
+	return 0;
+}
