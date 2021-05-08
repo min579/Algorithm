@@ -8,16 +8,18 @@ using namespace std;
 
 int N;
 int arPeopleCnt[11] = { 0, };
-vector<int> v_node[11];
-vector<int> v_region;
-int arUnion[11] = { 0, };
+vector<int> v_region[11];
+vector<int> v_region1;
+int arUnion1[11] = { 0, };
+vector<int> v_region2;
+int arUnion2[11] = { 0, };
 bool bVisit[11] = { 0, };
 bool bCheck[11] = { 0, };
-int g_people_sum = 0;
 int Total = 0;
 int diff_min = 100000;
 
-// 새로운 지역인지 확인하고, 새 지역인 경우 갯수를 구함
+// 새로운 지역인지 확인하고, 새 지역인 경우 사람 수를 리턴
+// 초기 지역 갯수 구하기 위함
 int IsNewField(int index)
 {
 	int PeopleCount = 0;
@@ -28,42 +30,52 @@ int IsNewField(int index)
 	bCheck[index] = true;
 	PeopleCount = arPeopleCnt[index];
 
-	for (int i = 0; i < v_node[index].size(); i++)
+	for (int i = 0; i < v_region[index].size(); i++)
 	{
-		PeopleCount += IsNewField(v_node[index].at(i));
+		PeopleCount += IsNewField(v_region[index].at(i));
 	}
 
 	return PeopleCount;
 }
 
-// 조합이 한 덩어리인지 확인
-bool IsOneRegion(int start, int total_cnt)
+// 지역 조합이 원하는 한 덩어리인지 확인 (갯수, arUnion 에 포함 된 것들 만으로)
+// 원하는 한 덩어리가 맞다면 people 합 리턴
+bool IsOneRegion(int start, int total_cnt, int arUnion[], int* people_sum)
 {
 	int cnt = 0;
-
+	int m_people_sum = 0;
 	queue<int> q;
 	q.push(start);
-	
+
 	while (!q.empty())
 	{
 		int c_index = q.front();
 		q.pop();
+
+		// 중복으로 queue 에 담긴 경우 skip
+		if (bVisit[c_index] == true)
+			continue;
+
 		bVisit[c_index] = true;
 
-		g_people_sum += arPeopleCnt[c_index];
+		// 현재 지역 사람 수 추가
+		m_people_sum += arPeopleCnt[c_index];
 		cnt++;
 
+		// 현재 지역까지가 원하던 지역 범위라면, people 리턴 값 셋팅 후 true 리턴
 		if (cnt == total_cnt)
-			return true;
-
-		for (int i = 0; i < v_node[c_index].size(); i++)
 		{
-			int n_index = v_node[c_index].at(i);
-	
-			if (arUnion[n_index] != true)
-				continue;
+			*people_sum = m_people_sum;
+			return true;
+		}
 
-			if (bVisit[n_index] == true)
+		// 현재 지역에 연결 된 노드에 대해 검색
+		for (int i = 0; i < v_region[c_index].size(); i++)
+		{
+			int n_index = v_region[c_index].at(i);
+	
+			// 같은 지역범위의 노드여야 함
+			if (arUnion[n_index] != true)
 				continue;
 
 			q.push(n_index);
@@ -75,13 +87,15 @@ bool IsOneRegion(int start, int total_cnt)
 
 void clear()
 {
-	for (int i = 0; i < N; i++)
+	for (int i = 1; i <= N; i++)
 	{
 		bVisit[i] = 0;
-		arUnion[i] = 0;
+		arUnion1[i] = 0;
+		arUnion2[i] = 0;
 	}
-	g_people_sum = 0;
-	v_region.clear();
+
+	v_region1.clear();
+	v_region2.clear();
 	
 	return;
 }
@@ -109,10 +123,12 @@ int main()
 			int node;
 			scanf("%d", &node);
 
-			v_node[i].push_back(node);
+			v_region[i].push_back(node);
 		}
 	}
 
+	// 최초 지도 상, 지역의 갯수를 구함 
+	// (만약 이미 2개라면 그대로 차이를 구하면 되고, 2개를 초과한다면 2개로 쪼갤 수 없는 지도)
 	for (int i = 1; i <= N; i++)
 	{
 		int ret = IsNewField(i);
@@ -125,26 +141,33 @@ int main()
 
 	if (idx == 1)
 	{
-		// 직접 구역을 나눠 계산 필요
+		// Map : 지역 1 덩어리 -> 직접 구역을 나눠 계산 필요
 		for (int i = 1; i < (1 << N); i++)
 		{
+			int Region1 = 0;
+			int Region2 = 0;
+
+			// 지역1, 지역2 에 포함 될 수 있는 각 조합을 구함
 			for (int j = 0; j < N; j++)
 			{
 				if (i & (1 << j))
 				{
-					arUnion[j + 1] = 1;
-					v_region.push_back(j + 1);
+					arUnion1[j + 1] = 1;
+					v_region1.push_back(j + 1);
+				}
+				else
+				{
+					arUnion2[j + 1] = 1;
+					v_region2.push_back(j + 1);
 				}
 			}
 
-			if (arUnion[1] && arUnion[3] && arUnion[4] && arUnion[8])
-				printf("");
-
-			if (true == IsOneRegion(v_region.at(0), v_region.size()))
+			// 고른 조합에 대해, 선거구가 딱 2개로 나눠졌다면 (Union 에 포함되는 지역들만으로 한 선거구가 되어야 함)
+			if (v_region1.size() != 0 &&
+				v_region2.size() != 0 && 
+				true == IsOneRegion(v_region1.at(0), v_region1.size(), arUnion1, &Region1) &&
+				true == IsOneRegion(v_region2.at(0), v_region2.size(), arUnion2, &Region2)	)
 			{
-				int Region1 = g_people_sum;
-				int Region2 = Total - g_people_sum;
-
 				int diff = Region1 - Region2;
 
 				if (diff < 0)
@@ -167,12 +190,14 @@ int main()
 	}
 	else if (idx == 2)
 	{
-		// 단 두개이기 때문에 바로 계산 가능
+		// Map : 지역 2 덩어리 -> 단 두개이기 때문에 바로 계산 가능
+
 		printf("%d", arPeoplePerField[1] - arPeoplePerField[0] > 0 ? arPeoplePerField[1] - arPeoplePerField[0] : arPeoplePerField[0] - arPeoplePerField[1]);
 	}
 	else if (idx > 2)
 	{
-		// 이미 지역이 두개 초과로, 두개로 나눌 수 없음
+		// Map : 지역 2 덩어리 -> 이미 지역이 두개 초과로, 두개로 나눌 수 없음
+
 		printf("-1");
 	}
 
