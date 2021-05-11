@@ -1,0 +1,32 @@
+// https://www.acmicpc.net/problem/16561 3의 배수
+
+#include<stdio.h>
+
+int d[1001] = { 0, };
+
+int main()
+{
+	int N;
+	int Cnt;
+
+	scanf("%d", &N);
+	Cnt = N / 3;
+
+	if (Cnt < 3)
+	{
+		printf("0");
+	}
+	else
+	{
+		d[3] = 1;
+
+		for (int i = 4; i <= Cnt; i++)
+		{
+			d[i] = d[i - 1] + i - 1 - 1;
+		}
+	}
+
+	printf("%d", d[Cnt]);
+  
+	return 0;
+}
