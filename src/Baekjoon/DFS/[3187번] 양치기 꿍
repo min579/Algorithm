@@ -1,0 +1,86 @@
+// https://www.acmicpc.net/problem/3187 양치기 
+
+#include<stdio.h>
+
+int R, C; 
+int g_wolf = 0, g_sheep = 0;
+int wolf = 0, sheep = 0;
+char arMap[250][250] = { 0, };
+bool bVisit[250][250] = { 0, };
+
+int di[4] = { -1,1,0,0 };
+int dj[4] = { 0,0,-1,1 };
+
+void dfs(int i, int j)
+{
+	if (i < 0 || i >= R || j < 0 || j >= C)
+		return;
+
+	if (bVisit[i][j] == true)
+		return;
+
+	bVisit[i][j] = true;
+
+	if (arMap[i][j] == '#')
+	{
+		return;
+	}
+	else if (arMap[i][j] == 'v')
+	{
+		wolf++;
+	}
+	else if (arMap[i][j] == 'k')
+	{
+		sheep++;
+	}
+
+	for (int k = 0; k < 4; k++)
+	{
+		dfs(i + di[k], j + dj[k]);
+	}
+
+	return;
+}
+
+int main()
+{
+	char c;
+	scanf("%d %d", &R, &C);
+
+	for (int i = 0; i < R; i++)
+	{
+		for (int j = 0; j < C; j++)
+		{
+			scanf("%c", &arMap[i][j]);
+		}
+		scanf("%c", &c);
+	}
+
+	// 각 위치에 대해 울타리 내 영역 탐색 -> wolf, sheep 수 구함
+	for (int i = 0; i < R; i++)
+	{
+		for (int j = 0; j < C; j++)
+		{
+			dfs(i, j);
+
+			// 구해 진 wolf, sheep 수를 비교하여 살아남는 동물의 수 ++
+			if (wolf >= sheep)
+			{
+				g_wolf += wolf;
+			}
+			else
+			{
+				g_sheep += sheep;
+			}
+
+			// 초기화 필요
+			wolf = 0;
+			sheep = 0;
+		}
+	}
+
+	// 최종 살아남는 동물의 수 출력
+	printf("%d %d", g_sheep, g_wolf);
+
+	return 0;
+}
