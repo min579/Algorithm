@@ -1,0 +1,91 @@
+//https://www.acmicpc.net/problem/11054 가장 긴 바이토닉 부분 수열
+
+#include<stdio.h>
+
+int N;
+int arNum[1001];
+int arSmall[1001];
+int arBig[1001];
+
+// 나를 포함해 작은->큰 수열 갯수 수 구함
+int dp_small(int index)
+{
+	int tmp = 0;
+	int tmp_max = 0;
+
+	if (arSmall[index] != 0)
+		return arSmall[index];
+
+	for (int i = 0; i < index; i++)
+	{
+		if (arNum[i] < arNum[index])
+		{
+			tmp = dp_small(i);
+			if (tmp_max < tmp)
+				tmp_max = tmp;
+		}
+	}
+
+	arSmall[index] = tmp_max + 1;
+
+	return arSmall[index];
+}
+
+// 나를 포함해 큰->작은 수열 갯수 수 구함
+int dp_big(int index)
+{
+	int tmp = 0;
+	int tmp_max = 0;
+
+	if (arBig[index] != 0)
+		return arBig[index];
+
+	for (int i = index + 1; i < N; i++)
+	{
+		if (arNum[index] > arNum[i])
+		{
+			tmp = dp_big(i);
+			if (tmp_max < tmp)
+				tmp_max = tmp;
+		}
+	}
+
+	arBig[index] = tmp_max + 1;
+
+	return arBig[index];
+}
+
+int main()
+{
+	int max = 0;
+
+	scanf("%d", &N);
+
+	for (int i = 0; i < N; i++)
+	{
+		scanf("%d", &arNum[i]);
+	}
+
+	for (int i = 0; i < N; i++)
+	{
+		// 모든 인덱스에 대해, 작은->큰, 큰->작은 수열의 갯수를 구함
+		dp_small(i);
+		dp_big(i);
+	}
+
+	for (int i = 0; i < N; i++)
+	{
+		// 최대가 되는 수열을 찾음
+		int tmp = arSmall[i] + arBig[i];
+
+		if (max < tmp) 
+		{
+			max = tmp;
+		}
+	}
+
+	// 작은->큰, 큰->작은 둘 다 자기자신이 포함 된 갯수이므로, 중복 계산 된 자기자신을 빼줌
+	printf("%d", max - 1);
+
+	return 0;
+}
