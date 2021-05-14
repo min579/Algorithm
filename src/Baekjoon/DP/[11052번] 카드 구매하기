@@ -45,7 +45,5 @@ int main()
 
 	printf("%d", dp(N, N));
 
-	scanf("%d", &N);
-
 	return 0;
 }
