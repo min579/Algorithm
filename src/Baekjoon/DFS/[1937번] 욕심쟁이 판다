@@ -1,0 +1,77 @@
+// https://www.acmicpc.net/problem/1937 욕심쟁이 판다
+
+#include<stdio.h>
+#include<algorithm>
+
+int n = 0;
+int map[500][500] = { 0, };
+int lifeday[500][500] = { 0, };
+int max_lifeday = 0;
+
+bool IsValidIndex(int i, int j)
+{
+	if (i < 0 || j < 0 || j >= n || j >= n)
+		return false;
+	else
+		return true;
+}
+
+int dfs(int i, int j, int v)
+{
+	int day = 0;
+	int arr[4] = { 0, };
+
+	// 유효 인덱스 체크
+	if (false == IsValidIndex(i, j))
+		return 0;
+
+	if (lifeday[i][j] != 0)
+		return lifeday[i][j];
+
+	// 각 방향에 대해 이후로 살 수 있는 날 구함
+	if (IsValidIndex(i, j + 1) && (map[i][j + 1] > v))
+		arr[0] = dfs(i, j + 1, map[i][j + 1]);
+
+	if (IsValidIndex(i, j - 1) && (map[i][j - 1] > v))
+		arr[1] = dfs(i, j - 1, map[i][j - 1]);
+
+	if (IsValidIndex(i - 1, j) && (map[i - 1][j] > v))
+		arr[2] = dfs(i - 1, j, map[i - 1][j]);
+
+	if (IsValidIndex(i + 1, j) && (map[i + 1][j] > v))
+		arr[3] = dfs(i + 1, j, map[i + 1][j]);
+
+	// 가장 큰 날과 현재 위치 들른 1day 합 함
+	lifeday[i][j] = std::max({ arr[0], arr[1], arr[2], arr[3] }) + 1;
+
+	if (max_lifeday < lifeday[i][j])
+		max_lifeday = lifeday[i][j];
+
+	return lifeday[i][j];
+}
+
+int main()
+{
+	scanf("%d", &n);
+
+	// map 입력 받기
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			scanf("%d", &map[i][j]);
+		}
+	}
+
+	// 모든 경우에 대해 lifeday 구함 (&& max_lifeday도 구함)
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			dfs(i, j, map[i][j]);
+		}
+	}
+	printf("%d", max_lifeday);
+
+	return 0;
+}
