@@ -1,0 +1,47 @@
+// https://www.acmicpc.net/problem/2606 바이러스
+
+#include<stdio.h>
+#include<vector>
+
+using namespace std;
+
+int n = 0, m = 0;
+vector<int> v[101];
+bool visit[101] = { 0, };
+
+int dfs(int i)
+{
+	int result = 0;
+
+	if (visit[i] == true)
+		return 0;
+
+	visit[i] = true;
+	result = 1;
+
+	for (int j = 0; j < v[i].size(); j++)
+	{
+		int next = v[i].at(j);
+
+		result += dfs(next);
+	}
+
+	return result;
+}
+
+int main()
+{
+	scanf("%d %d", &n, &m);
+
+	for (int i = 0; i < m; i++)
+	{
+		int a, b;
+		scanf("%d %d", &a, &b);
+		v[a].push_back(b);
+		v[b].push_back(a);
+	}
+
+	printf("%d", dfs(1) - 1);
+
+	return 0;
+}
