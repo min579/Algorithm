@@ -1,0 +1,103 @@
+//https://www.acmicpc.net/problem/2589 보물섬
+
+#include<stdio.h>
+#include<queue>
+
+using namespace std;
+
+int n, m;
+int graph[50][50] = { 0, };
+int distance_graph[50][50] = { 0, };
+
+int dx[4] = { -1,1,0,0 };
+int dy[4] = { 0,0,-1,1 };
+
+int distance_max = 0;
+
+void bfs(int x, int y)
+{
+	if (x < 0 || y < 0 || x >= n || y >= m)
+		return;
+
+	queue<pair<int, int>> q;
+	q.push({ x,y });
+	distance_graph[x][y] = 1;     // 예외 케이스가 있어서 추가 한 코드 (참고1)
+    
+	while (!q.empty())
+	{
+		int cx = q.front().first;
+		int cy = q.front().second;
+		q.pop();
+
+		for (int i = 0; i < 4; i++)
+		{
+			int nx = cx + dx[i];
+			int ny = cy + dy[i];
+
+			if (nx < 0 || ny < 0 || nx >= n || ny >= m)
+			{
+				continue;
+			}
+
+			if (graph[nx][ny] == 0)
+			{
+				continue;
+			}
+			else
+			{	
+				// 처음 방문 할 때만
+				if (distance_graph[nx][ny] == 0)
+				{
+					distance_graph[nx][ny] = distance_graph[cx][cy] + 1;
+					q.push({ nx,ny });
+
+					if (distance_max < distance_graph[nx][ny])
+						distance_max = distance_graph[nx][ny];
+				}
+			}
+		}
+	}
+
+	return;
+}
+
+int main()
+{
+	scanf("%d %d", &n, &m);
+
+	getchar();
+
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < m; j++)
+		{
+			char c = getchar();
+			if (c == 'L')
+				graph[i][j] = 1;
+		}
+		getchar();
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < m; j++)
+		{
+			if (graph[i][j] == 1)
+			{
+				bfs(i, j);
+
+				// 초기화
+				for (int k = 0; k < n; k++)
+				{
+					for (int l = 0; l < m; l++)
+					{
+						distance_graph[k][l] = 0;
+					}
+				}
+			}
+		}
+	}
+
+	printf("%d", distance_max - 1);                  // 예외 케이스로 인한 초기화 값 때문에 -1 필요
+	return 0;
+}
