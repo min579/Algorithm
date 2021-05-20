@@ -1,0 +1,117 @@
+// https://www.acmicpc.net/problem/7576 토마토
+
+#include<stdio.h>
+#include<queue>
+
+using namespace std;
+
+int max_i, max_j;
+//    n      m
+int arMap[1001][1001] = { 0, };
+bool visit[1001][1001] = { 0, };
+
+int GetMaxDay()
+{
+	int max = 0;
+
+	for (int i = 0; i < max_i; i++)
+	{
+		for (int j = 0; j < max_j; j++)
+		{
+			if (max < arMap[i][j])
+				max = arMap[i][j];
+
+			if (arMap[i][j] == 0)
+				return -1;
+		}
+	}
+
+	return max;
+}
+
+void SetDayForRipen()
+{
+	queue<pair<int, int>> q;
+
+	for (int i = 0; i < max_i; i++)
+	{
+		for (int j = 0; j < max_j; j++)
+		{
+			if (arMap[i][j] == 1)
+			{
+				q.push(make_pair(i, j));
+			}
+		}
+	}
+
+	while (!q.empty())
+	{
+		int ni = q.front().first;
+		int nj = q.front().second;
+		q.pop();
+
+		if (ni < 0 || nj < 0 || ni >= max_i || nj >= max_j)
+			continue;
+
+		if (visit[ni][nj] == true)
+			continue;
+
+		visit[ni][nj] = true;
+
+		if (ni + 1 < max_i &&
+			arMap[ni + 1][nj] == 0)
+		{
+			q.push(make_pair(ni + 1, nj));
+			arMap[ni + 1][nj] = arMap[ni][nj] + 1;
+		}
+
+		if (ni - 1 >= 0 &&
+			arMap[ni - 1][nj] == 0)
+		{
+			q.push(make_pair(ni - 1, nj));
+			arMap[ni - 1][nj] = arMap[ni][nj] + 1;
+		}
+
+		if (nj + 1 < max_j &&
+			arMap[ni][nj + 1] == 0)
+		{
+			q.push(make_pair(ni, nj + 1));
+			arMap[ni][nj + 1] = arMap[ni][nj] + 1;
+		}
+
+		if (nj - 1 >= 0 &&
+			arMap[ni][nj - 1] == 0)
+		{
+			q.push(make_pair(ni, nj - 1));
+			arMap[ni][nj - 1] = arMap[ni][nj] + 1;
+		}
+	}
+
+	return;
+}
+
+int main()
+{
+	int result = 0;
+
+	scanf("%d %d", &max_j, &max_i);
+
+	for (int i = 0; i < max_i; i++)
+	{
+		for (int j = 0; j < max_j; j++)
+		{
+			scanf("%d", &arMap[i][j]);
+		}
+	}
+
+	SetDayForRipen();
+
+	result = GetMaxDay();
+
+	if (result != -1)
+		printf("%d\n", result - 1);
+	else
+		printf("-1\n");
+
+	return 0;
+}
