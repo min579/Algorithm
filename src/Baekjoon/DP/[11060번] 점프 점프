@@ -1,0 +1,70 @@
+// https://www.acmicpc.net/problem/11060 점프 점프
+
+#include<stdio.h>
+
+int N;
+int arNum[1000] = { 0, };
+int d[1000] = { 0, };
+
+// index 로 올 수 있는 최소 점프 수 반환
+int dp(int index)
+{
+	if (index < 0)
+		return 0;
+
+	if (index == 0)
+		return 0;
+
+	if (d[index] != 0)
+		return d[index];
+	
+	for (int i = index - 1; i >= 0; i--)
+	{
+		// 점프로 닿을 수 있는 거리라면
+		if (i + arNum[i] >= index)
+		{
+			int before = dp(i);
+
+			if (before == -1)
+				continue;
+
+			if (d[index] == 0)
+			{
+				d[index] = before + 1;
+			}
+			else
+			{
+				// '현재 저장 된 점프 수 > 새로 점프해 오는 점프 수'  경우 갱신
+				if(d[index] > before + 1)
+					d[index] = before + 1;
+			}
+		}
+	}
+
+	// 1에서 이 index로 점프해서 도착 할 경우의 수는 없다는 의미로 -1 저장
+	if (d[index] == 0)
+		d[index] = -1;
+
+	return d[index];
+}
+
+int main()
+{
+	int result = 0;
+
+	scanf("%d", &N);
+
+	for (int i = 0; i < N; i++)
+	{
+		scanf("%d", &arNum[i]);
+	}
+
+	result = dp(N - 1);
+	
+	if (N == 1)
+		printf("0");
+	else
+		printf("%d", result);
+
+	return 0;
+}
