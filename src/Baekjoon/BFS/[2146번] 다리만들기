@@ -1,0 +1,171 @@
+// https://www.acmicpc.net/problem/2146 다리만들기
+
+#include<stdio.h>
+#include<queue>
+#include<algorithm>
+
+using namespace std;
+
+int N;
+int landNum = 1;
+int arMap[100][100] = { 0, };
+bool arVisit[100][100] = { 0, };
+int arShortest[100][100] = { 0, };
+int g_shortest = 200;
+
+// initialize
+void InitArray()
+{
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < N; j++)
+		{
+			arVisit[i][j] = false;
+			arShortest[i][j] = 0;
+		}
+	}
+}
+
+// return false : 아무런 Map 관리 X
+// return true : 해당 인덱스와 연결 된 Map 관리 O
+bool SetLandNumber(int i, int j)
+{
+	if (arMap[i][j] == 0 || arVisit[i][j] == true)
+		return false;
+
+	queue<pair<int, int>> q;
+	q.push(make_pair(i, j));
+
+	while (!q.empty())
+	{
+		int ni = q.front().first;
+		int nj = q.front().second;
+		q.pop();
+
+		if (ni < 0 || nj < 0 || ni >= N || nj >= N)
+			continue;
+
+		if (arVisit[ni][nj] == true)
+			continue;
+
+		if (arMap[ni][nj] != 0)
+		{
+			arVisit[ni][nj] = true;
+			arMap[ni][nj] = landNum;
+
+			if (arMap[ni + 1][nj] != 0)
+				q.push(make_pair(ni + 1, nj));
+			if (arMap[ni - 1][nj] != 0)
+				q.push(make_pair(ni - 1, nj));
+			if (arMap[ni][nj + 1] != 0)
+				q.push(make_pair(ni, nj + 1));
+			if (arMap[ni][nj - 1] != 0)
+				q.push(make_pair(ni, nj - 1));
+		}
+	}
+
+	return true;
+}
+
+// 해당 index 로부터 다른 land 로 최소 거리를 구함
+int FindShortestLand(int i, int j)
+{
+	if (arMap[i][j] == 0)
+		return 200;
+
+	int startLand = arMap[i][j];
+	int shortest = 200;
+	queue <pair<int, int>> q;
+	q.push(make_pair(i, j));
+	
+	while (!q.empty())
+	{
+		int ni = q.front().first;
+		int nj = q.front().second;
+		q.pop();
+
+		if (ni < 0 || nj < 0 || ni >= N || nj >= N)
+			continue;
+
+		if (arVisit[ni][nj] == true)
+			continue;
+
+		arVisit[ni][nj] = true;
+
+		if (arMap[ni][nj] != 0 &&
+			arMap[ni][nj] != startLand)
+			return shortest;
+
+		if (ni + 1 < N &&
+			arMap[ni + 1][nj] != startLand)
+		{
+			q.push(make_pair(ni + 1, nj));
+			arShortest[ni + 1][nj] = arShortest[ni][nj] + 1;
+			shortest = arShortest[ni + 1][nj];
+		}
+		if (ni - 1 >= 0 &&
+			arMap[ni - 1][nj] != startLand)
+		{
+			q.push(make_pair(ni - 1, nj));
+			arShortest[ni - 1][nj] = arShortest[ni][nj] + 1;
+			shortest = arShortest[ni - 1][nj];
+		}
+		if (nj + 1 < N &&
+			arMap[ni][nj + 1] != startLand)
+		{
+			q.push(make_pair(ni, nj + 1));
+			arShortest[ni][nj + 1] = arShortest[ni][nj] + 1;
+			shortest = arShortest[ni][nj + 1];
+		}
+		if (nj - 1 >= 0 && 
+			arMap[ni][nj - 1] != startLand)
+		{
+			q.push(make_pair(ni, nj - 1));
+			arShortest[ni][nj - 1] = arShortest[ni][nj] + 1;
+			shortest = arShortest[ni][nj - 1];
+		}
+	}
+
+	return shortest;
+}
+
+int main()
+{
+	scanf("%d", &N);
+
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < N; j++)
+		{
+			scanf("%d", &arMap[i][j]);
+		}
+	}
+	
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < N; j++)
+		{
+			if (SetLandNumber(i, j))
+			{
+				landNum++;
+			}
+		}
+	}
+
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < N; j++)
+		{
+			int result;
+			InitArray();
+			result = FindShortestLand(i, j);
+			
+			if (g_shortest > result)
+				g_shortest = result;
+		}
+	}
+	
+	printf("%d", g_shortest - 1);
+
+	return 0;
+}
