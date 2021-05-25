@@ -1,0 +1,55 @@
+// https://www.acmicpc.net/problem/11048 이동하기
+
+#include<stdio.h>
+
+int N, M;
+int arMap[1000][1000] = { 0, };
+int arBest[1000][1000] = { 0, };
+
+bool IsValidPoint(int i, int j)
+{
+	if (0 <= i && i < N && 0 <= j && 0 < M)
+		return true;
+
+	return false;
+}
+
+int main()
+{
+	scanf("%d %d", &N, &M);
+
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < M; j++)
+		{
+			scanf("%d", &arMap[i][j]);
+			arBest[i][j] = arMap[i][j];
+		}
+	}
+
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < M; j++)
+		{
+			if (IsValidPoint(i - 1, j - 1))
+			{
+				if (arBest[i][j] < arBest[i - 1][j - 1] + arMap[i][j])
+					arBest[i][j] = arBest[i - 1][j - 1] + arMap[i][j];
+			}
+			if (IsValidPoint(i - 1, j))
+			{
+				if (arBest[i][j] < arBest[i - 1][j] + arMap[i][j])
+					arBest[i][j] = arBest[i - 1][j] + arMap[i][j];
+			}
+			if (IsValidPoint(i, j - 1))
+			{
+				if (arBest[i][j] < arBest[i][j - 1] + arMap[i][j])
+					arBest[i][j] = arBest[i][j - 1] + arMap[i][j];
+			}
+		}
+	}
+
+	printf("%d", arBest[N - 1][M - 1]);
+
+	return 0;
+}
