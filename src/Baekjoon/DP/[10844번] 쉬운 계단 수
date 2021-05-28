@@ -1,0 +1,54 @@
+// https://www.acmicpc.net/problem/10844 쉬운 계단 수
+
+#include<stdio.h>
+
+int N = 0;
+int d[101][10] = { 0, };	// d[i][j] : 0~i 인덱스까지 고려할 때, i 인덱스 값이 j 일 때 계단이 될 수 있는 가짓수
+long long result = 0;
+
+int dp(int index, int Num)
+{
+    long long ret = 0;
+    
+	if (index < 0 || index >= N || Num < 0 || Num >= 10)     // 유효하지 않은 범위 
+		return 0;
+
+	if (d[index][Num] != 0)        // 메모이제이션
+		return d[index][Num];
+
+	if (index == 0)
+	{
+		if (Num == 0)        // index 가 0인데 Num 도 0인 경우, 쉬운 계단에 부합하지 않음
+			return 0;
+		else
+			return 1;        // index 가 0인데 0이 아닌 Num 이라면, 쉬운 계단에 부합
+	}
+
+	ret += dp(index - 1, Num + 1);         // 이전 자릿수에 +1, -1 의 숫자에 대해, 쉬운 계단 수 얻어와 누적
+	ret += dp(index - 1, Num - 1);
+
+    d[index][Num] = ret % 1000000000;
+    
+	return d[index][Num];
+}
+
+int main()
+{
+	scanf("%d", &N);
+
+	if (N == 1)
+	{
+		printf("9");                        // 1의 자리 숫자는 1~9까지가 쉬운 계단
+	}
+	else
+	{
+		for (int i = 0; i <= 9; i++)
+		{
+			result += dp(N - 1, i);
+		}
+
+		printf("%lld", result % 1000000000);         // 1의 자리수에 0~9까지 넣으면서 앞 자리 숫자들을 변경하며 카운팅
+	}
+
+	return 0;
+}
