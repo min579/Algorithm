@@ -1,0 +1,21 @@
+// https://www.acmicpc.net/problem/4796 캠핑
+
+#include<stdio.h>
+
+int main()
+{
+	int L = 0, P = 0, V = 0;
+	int count = 1;
+
+	scanf("%d %d %d", &L, &P, &V);
+
+	do {
+		printf("Case %d: %d\n",count, V / P * L + (L > V%P ? V%P : L));
+		
+		count++;
+
+		scanf("%d %d %d", &L, &P, &V);
+	} while (L != 0 && P != 0 && V != 0);
+
+	return 0;
+}
