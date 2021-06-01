@@ -1,0 +1,30 @@
+// https://www.acmicpc.net/problem/11399 ATM
+
+
+#include<stdio.h>
+#include<algorithm>
+
+int main()
+{
+	int N = 0;
+	int arPay[1000] = { 0, };
+	int result = 0;
+
+	scanf("%d", &N);
+
+	for (int i = 0; i < N; i++)
+	{
+		scanf("%d", &arPay[i]);
+	}
+
+	std::sort(arPay, arPay + N);
+
+	for (int i = 0; i < N; i++)
+	{
+		result += (arPay[i] * (N - i));
+	}
+
+	printf("%d", result);
+
+	return 0;
+}
