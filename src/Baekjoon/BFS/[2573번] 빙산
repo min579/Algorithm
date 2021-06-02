@@ -1,0 +1,195 @@
+// https://www.acmicpc.net/problem/2573 빙산
+
+#include<stdio.h>
+#include<queue>
+#include<algorithm>
+
+using namespace std;
+
+int N, M;
+char map[301][301] = { 0, };
+bool visit[301][301] = { 0, };
+char melt[301][301] = { 0, };
+
+/*
+	빙산을 1년 치 녹힘
+*/
+void Melting()
+{
+	int water = 0;
+
+	// 초기화
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < M; j++)
+		{
+			melt[i][j] = 0;
+		}
+	}
+
+	// melt 양 구하기
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < M; j++)
+		{
+			if (map[i][j])
+			{
+				water = 0;
+
+				if (0 == map[i + 1][j])
+					water++;
+				if (0 == map[i - 1][j])
+					water++;
+				if (0 == map[i][j + 1])
+					water++;
+				if (0 == map[i][j - 1])
+					water++;
+
+				melt[i][j] = water;
+			}
+		}
+	}
+
+	// melting
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < M; j++)
+		{
+			if (map[i][j])
+			{
+				if (map[i][j] < melt[i][j])
+					map[i][j] = 0;
+				else
+					map[i][j] = map[i][j] - melt[i][j];
+			}
+		}
+	}
+
+	return;
+}
+
+/*
+	빙산이 모두 녹았는지 체크
+	return - true : 빙산 모두 녹음 / false : 빙산 다 녹지 않음
+*/
+bool IsAllWater()
+{
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < M; j++)
+		{
+			if (0 != map[i][j])
+				return false;
+		}
+	}
+
+	return true;
+}
+
+/*
+	현재 map 을 기준으로 bfs 검사 -> 빙산 갯수 2개 이상인지 확인
+	return - true : 2개 이상 / false : 2개 미만
+*/
+bool IsTwoOrMore()
+{	
+	bool bCountPlus = false;
+	int count = 0;
+
+	// 초기화
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < M; j++)
+		{
+			visit[i][j] = false;
+		}
+	}
+	
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < M; j++)
+		{
+			bCountPlus = false;
+
+			if (0 != map[i][j])
+			{
+				queue <pair<int, int>> q;
+				q.push(make_pair(i, j));
+
+				while (!q.empty())
+				{
+					int n_x = q.front().first;
+					int n_y = q.front().second;
+					q.pop();
+
+					if (true == visit[n_x][n_y])
+						continue;
+
+					visit[n_x][n_y] = true;
+					bCountPlus = true;
+
+					if (0 != map[n_x + 1][n_y])
+						q.push(make_pair(n_x + 1, n_y));
+					if (0 != map[n_x - 1][n_y])
+						q.push(make_pair(n_x - 1, n_y));
+					if (0 != map[n_x][n_y + 1])
+						q.push(make_pair(n_x, n_y + 1));
+					if (0 != map[n_x][n_y - 1])
+						q.push(make_pair(n_x, n_y - 1));
+				}
+			}
+
+			if(bCountPlus)
+				count++;
+		}
+	}
+
+	if (count >= 2)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+int main()
+{
+	int i = 0, j = 0;
+	bool bDivided = false;
+	int year = 0;
+
+	scanf("%d %d", &N, &M);
+
+	for (i = 0; i < N; i++)
+	{
+		for (j = 0; j < M; j++)
+		{
+			scanf("%d", &map[i][j]);
+		}
+	}
+
+	// 빙산이 다 녹을 때 까지 반복 : 빙산 덩어리 2개 이상인지 체크 -> 녹힘 
+	while(!IsAllWater())
+	{
+		if (IsTwoOrMore())
+		{
+			bDivided = true;
+			break;
+		}
+
+		Melting();
+		year++;
+	}
+
+	if (bDivided)
+	{
+		// 2개 이상으로 분리 됨
+		printf("%d\n", year);
+	}
+	else
+	{
+		// 끝까지 2개이상으로 분리되지 않음
+		printf("0\n");
+	}
+
+	return 0;
+}
