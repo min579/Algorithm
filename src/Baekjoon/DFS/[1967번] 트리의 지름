@@ -1,0 +1,68 @@
+// https://www.acmicpc.net/problem/1967 트리의 지름
+
+#include<stdio.h>
+#include<vector>
+
+using namespace std;
+
+int N;
+vector <pair<int, int>> v[10001];
+bool arVisit[10001] = { 0, };
+int end_point = 0;
+int result = 0;
+
+void ClearVisit()
+{
+	for (int i = 1; i <= N; i++)
+	{
+		arVisit[i] = false;
+	}
+}
+
+// index 까지 검색했을 때가 최장 지름이라 생각하고, 지름을 결정한다.
+// 그리고 다음으로 진행 할 index가 있다면 추가 검색을 진행한다.
+void dfs(int index, int len)
+{
+	if (arVisit[index] == true)
+		return ;
+
+	arVisit[index] = true;
+
+	if (result < len)
+	{
+		result = len;
+		end_point = index;
+	}
+
+	for (int i = 0; i < v[index].size(); i++)
+	{
+		int next_index = v[index].at(i).first;
+		dfs(next_index, len + v[index].at(i).second);
+	}
+
+	return;
+}
+
+int main()
+{
+	scanf("%d", &N);
+
+	for (int i = 1; i <= N-1; i++)
+	{
+		int NodeA, NodeB, length;
+		scanf("%d %d %d", &NodeA, &NodeB, &length);
+
+		v[NodeA].push_back(make_pair(NodeB, length));
+		v[NodeB].push_back(make_pair(NodeA, length));
+	}
+
+	dfs(1, 0);
+
+	ClearVisit();
+	
+	dfs(end_point, 0);
+
+	printf("%d", result);
+
+	return 0;
+}
