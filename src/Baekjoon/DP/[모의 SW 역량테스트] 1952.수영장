@@ -1,0 +1,58 @@
+//1952. [모의 SW 역량테스트] 수영장
+
+#include<stdio.h>
+
+int min(int a, int b)
+{
+	if (a < b)
+		return a;
+	else
+		return b;
+}
+
+int main()
+{
+	int T;
+
+	scanf("%d", &T);
+
+	for (int t = 1; t <= T; t++)
+	{
+		int arPay[4] = { 0, };
+		int arNumberbyMonth[13] = { 0, };
+		int d[13] = { 0, };
+		
+		for (int i = 0; i < 4; i++)
+		{
+			scanf("%d", &arPay[i]);
+		}
+
+		for (int i = 1; i <= 12; i++)
+		{
+			scanf("%d", &arNumberbyMonth[i]);
+		}
+
+		for (int i = 1; i <= 12; i++)
+		{
+			// 당월 만 계산
+			d[i] = min(d[i - 1] + arNumberbyMonth[i] * arPay[0], d[i - 1] + arPay[1]);
+			
+			// 당월 + 3개월치 계산
+			if (i - 3 >= 0)
+			{
+				d[i] = min(d[i - 3] + arPay[2], d[i]);
+			}
+		}
+
+		// 당월 + 12개월치 계산
+		if (d[12] > arPay[3])
+		{
+			d[12] = arPay[3];
+		}
+
+		printf("#%d %d\n", t, d[12]);
+
+	}
+
+	return 0;
+}
